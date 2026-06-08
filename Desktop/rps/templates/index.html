@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rock Paper Scissors</title>
+    <style>
+      body { background:#1e1e2e; color:#e6eef6; font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; }
+      .card { background:#0f1724; padding:24px; border-radius:8px; width:360px; text-align:center }
+      button { padding:10px 16px; margin:6px; border:none; border-radius:6px; cursor:pointer; font-size:16px }
+      .rock { background:#fab387 }
+      .paper { background:#89b4fa }
+      .scissors { background:#f38ba8 }
+      .result { margin-top:18px; font-weight:700; color:#a6e3a1 }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Rock Paper Scissors</h2>
+      <div>
+        <button class="rock" onclick="play('Rock')">🪨 Rock</button>
+        <button class="paper" onclick="play('Paper')">📄 Paper</button>
+        <button class="scissors" onclick="play('Scissors')">✂ Scissors</button>
+      </div>
+      <div id="status">
+        <p id="you">You: -</p>
+        <p id="computer">Computer: -</p>
+        <p id="result" class="result"></p>
+      </div>
+    </div>
+
+    <script>
+      async function play(choice) {
+        const res = await fetch('/play', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({choice})
+        })
+        if (!res.ok) {
+          alert('Server error')
+          return
+        }
+        const data = await res.json()
+        document.getElementById('you').textContent = 'You: ' + data.user
+        document.getElementById('computer').textContent = 'Computer: ' + data.computer
+        document.getElementById('result').textContent = data.result
+      }
+    </script>
+  </body>
+</html>
