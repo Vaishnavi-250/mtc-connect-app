@@ -5,46 +5,299 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Rock Paper Scissors</title>
     <style>
-      body { background:#1e1e2e; color:#e6eef6; font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; }
-      .card { background:#0f1724; padding:24px; border-radius:8px; width:360px; text-align:center }
-      button { padding:10px 16px; margin:6px; border:none; border-radius:6px; cursor:pointer; font-size:16px }
-      .rock { background:#fab387 }
-      .paper { background:#89b4fa }
-      .scissors { background:#f38ba8 }
-      .result { margin-top:18px; font-weight:700; color:#a6e3a1 }
+      body { background:#0f1724; color:#e6eef6; font-family: Arial, sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+      .card { background:#111827; padding:24px; border-radius:20px; width:420px; box-shadow:0 20px 60px rgba(0,0,0,.4); border:1px solid rgba(148,163,184,.12); }
+      h2 { margin:0 0 14px; font-size:28px; letter-spacing:.02em; text-transform:uppercase; }
+      .scoreboard { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+      .score-box { background:linear-gradient(180deg, #111827 0%, #1e293b 100%); border:1px solid #334155; border-radius:14px; padding:16px; text-align:center; position:relative; overflow:hidden; }
+      .score-box::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at top right, rgba(96,165,250,.15), transparent 45%); pointer-events:none; }
+      .score-box strong { display:block; font-size:15px; margin-bottom:8px; color:#94a3b8; letter-spacing:.02em; }
+      .score-box span { position:relative; font-size:24px; font-weight:800; color:#f8fafc; }
+      .gesture-guide { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+      .gesture-card { background:#111827; border:1px solid #334155; border-radius:16px; padding:14px; text-align:center; color:#cbd5e1; }
+      .matchboard { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+      .match-box { background:#111827; border:1px solid #334155; border-radius:14px; padding:14px; text-align:center; color:#cbd5e1; }
+      .match-box strong { display:block; font-size:13px; margin-bottom:6px; color:#94a3b8; }
+      .match-box span { font-size:20px; font-weight:700; color:#f8fafc; }
+      .match-controls { display:flex; justify-content:space-between; gap:10px; margin-bottom:16px; }
+      .match-controls button { flex:1; background:#2563eb; color:#f8fafc; border:none; border-radius:14px; padding:12px; font-size:14px; box-shadow:0 6px 16px rgba(37,99,235,.18); }
+      .match-controls button:hover { filter:brightness(1.05); }
+      .gesture-card span { display:block; font-size:32px; margin-bottom:10px; }
+      .gesture-card p { margin:0; font-size:13px; color:#94a3b8; }
+      .buttons { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+      button { padding:14px 18px; border:none; border-radius:16px; cursor:pointer; font-size:16px; color:#111827; transition:transform .14s ease, filter .14s ease, box-shadow .14s ease; box-shadow:0 10px 20px rgba(15,23,42,.12); }
+      button:hover { transform:translateY(-2px); filter:brightness(1.06); box-shadow:0 14px 20px rgba(15,23,42,.18); }
+      .rock { background:#f6ad55; }
+      .paper { background:#7f9cf5; }
+      .scissors { background:#f687b3; }
+      .control { background:#64748b; color:#f8fafc; width:100%; margin-top:8px; }
+      .gesture-display { display:flex; justify-content:space-between; align-items:center; background:#0f1724; border:1px solid #334155; border-radius:18px; padding:18px 16px; margin-bottom:16px; color:#f8fafc; min-height:120px; box-shadow:inset 0 0 24px rgba(148,163,184,.08); }
+      .player-gesture { display:flex; flex-direction:column; align-items:center; width:45%; }
+      .player-gesture span { display:block; font-size:48px; line-height:1; margin-bottom:8px; }
+      .player-gesture p { margin:0; font-size:13px; color:#94a3b8; letter-spacing:.03em; }
+      .result-card { background:#111827; border:1px solid #334155; border-radius:18px; padding:20px; margin-top:4px; }
+      .result-card p { margin:8px 0; }
+      .result-card .result { font-size:18px; font-weight:700; color:#a6e3a1; }
+      .tiny { color:#94a3b8; font-size:13px; }
+      .history { margin-top:12px; padding:12px; background:#111827; border:1px solid #334155; border-radius:14px; max-height:140px; overflow:auto; }
+      .history div { font-size:13px; line-height:1.6; color:#cbd5e1; }
+      .badge { display:inline-block; padding:.18rem .7rem; border-radius:999px; font-size:12px; background:#334155; color:#e2e8f0; }
+      @keyframes pulse {
+        0% { transform:scale(1); }
+        50% { transform:scale(1.04); }
+        100% { transform:scale(1); }
+      }
+      .active-gesture { animation:pulse 1.2s ease-in-out infinite; }
     </style>
   </head>
   <body>
     <div class="card">
       <h2>Rock Paper Scissors</h2>
-      <div>
-        <button class="rock" onclick="play('Rock')">🪨 Rock</button>
-        <button class="paper" onclick="play('Paper')">📄 Paper</button>
-        <button class="scissors" onclick="play('Scissors')">✂ Scissors</button>
+
+      <div class="scoreboard">
+        <div class="score-box">
+          <strong>Points</strong>
+          <span id="points">0</span>
+        </div>
+        <div class="score-box">
+          <strong>Level</strong>
+          <span id="level">1</span>
+        </div>
+        <div class="score-box">
+          <strong>Win Streak</strong>
+          <span id="streak">0</span>
+        </div>
+        <div class="score-box">
+          <strong>Best Streak</strong>
+          <span id="bestStreak">0</span>
+        </div>
       </div>
-      <div id="status">
-        <p id="you">You: -</p>
-        <p id="computer">Computer: -</p>
-        <p id="result" class="result"></p>
+
+      <div class="matchboard">
+        <div class="match-box">
+          <strong>Match Mode</strong>
+          <span id="matchMode">Best of 3</span>
+        </div>
+        <div class="match-box">
+          <strong>Score</strong>
+          <span id="matchScore">0 - 0</span>
+        </div>
+        <div class="match-box">
+          <strong>Round</strong>
+          <span id="matchRound">1</span>
+        </div>
       </div>
+
+      <div class="match-controls">
+        <button class="control" onclick="chooseMatch(3)">Best of 3</button>
+        <button class="control" onclick="chooseMatch(5)">Best of 5</button>
+      </div>
+
+      <div class="gesture-guide">
+        <div class="gesture-card"><span>✊</span><p>Rock</p></div>
+        <div class="gesture-card"><span>🖐️</span><p>Paper</p></div>
+        <div class="gesture-card"><span>✌️</span><p>Scissors</p></div>
+      </div>
+
+      <div class="buttons">
+        <button class="rock" onclick="play('Rock')">✊ Rock</button>
+        <button class="paper" onclick="play('Paper')">🖐️ Paper</button>
+        <button class="scissors" onclick="play('Scissors')">✌️ Scissors</button>
+      </div>
+
+      <div class="gesture-display" id="gestureDisplay">
+        <div class="player-gesture">
+          <span id="userGesture">-</span>
+          <p>You</p>
+        </div>
+        <div class="player-gesture">
+          <span id="computerGesture">-</span>
+          <p>Computer</p>
+        </div>
+      </div>
+
+      <button class="control" onclick="resetGame()">Reset Game</button>
+
+      <div class="result-card">
+        <p class="tiny">You choose</p>
+        <p id="you">-</p>
+        <p class="tiny">Computer chooses</p>
+        <p id="computer">-</p>
+        <p id="result" class="result">Make your move to begin.</p>
+        <p id="streakText" class="tiny">Earn points, build streaks, and unlock level bonus rewards.</p>
+        <p class="tiny">Last score change: <span id="pointsChange">+0</span></p>
+      </div>
+
+      <div class="history" id="history"></div>
     </div>
 
     <script>
+      const storageKey = 'rpsGameState';
+      const state = {
+        points: 0,
+        wins: 0,
+        losses: 0,
+        ties: 0,
+        streak: 0,
+        bestStreak: 0,
+        level: 1,
+        history: [],
+        matchMode: 3,
+        matchRound: 1,
+        matchUserWins: 0,
+        matchComputerWins: 0
+      };
+
+      function loadState() {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          Object.assign(state, JSON.parse(saved));
+        }
+        updateView();
+      }
+
+      function saveState() {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      }
+
+      function updateView() {
+        document.getElementById('points').textContent = state.points;
+        document.getElementById('level').textContent = state.level;
+        document.getElementById('streak').textContent = state.streak;
+        document.getElementById('bestStreak').textContent = state.bestStreak;
+        document.getElementById('matchMode').textContent = `Best of ${state.matchMode}`;
+        document.getElementById('matchScore').textContent = `${state.matchUserWins} - ${state.matchComputerWins}`;
+        document.getElementById('matchRound').textContent = state.matchRound;
+        renderHistory();
+      }
+
+      function renderHistory() {
+        const historyEl = document.getElementById('history');
+        historyEl.innerHTML = state.history.slice(-5).reverse().map(entry => {
+          return `<div><span class="badge">${entry.outcome.toUpperCase()}</span> ${entry.user} vs ${entry.computer} — ${entry.result} <span class="tiny">(${entry.points >= 0 ? '+' : ''}${entry.points})</span></div>`;
+        }).join('') || '<div>Play a round to build your story.</div>';
+      }
+
+      function computeLevel(points) {
+        return Math.max(1, Math.floor(points / 50) + 1);
+      }
+
+      function resetGame() {
+        Object.assign(state, {
+          points: 0,
+          wins: 0,
+          losses: 0,
+          ties: 0,
+          streak: 0,
+          bestStreak: 0,
+          level: 1,
+          history: [],
+          matchMode: 3,
+          matchRound: 1,
+          matchUserWins: 0,
+          matchComputerWins: 0
+        });
+        document.getElementById('you').textContent = '-';
+        document.getElementById('computer').textContent = '-';
+        document.getElementById('userGesture').textContent = '-';
+        document.getElementById('computerGesture').textContent = '-';
+        document.getElementById('result').textContent = 'Game reset. Ready for a fresh run!';
+        document.getElementById('streakText').textContent = 'Win streaks and combo bonuses restart too.';
+        document.getElementById('pointsChange').textContent = '+0';
+        saveState();
+        updateView();
+      }
+
       async function play(choice) {
+        if (matchComplete()) {
+          alert('Match already finished. Choose a match mode to start a new match.');
+          return;
+        }
+
         const res = await fetch('/play', {
           method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({choice})
-        })
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ choice, win_streak: state.streak })
+        });
+
         if (!res.ok) {
-          alert('Server error')
-          return
+          alert('Server error. Try again.');
+          return;
         }
-        const data = await res.json()
-        document.getElementById('you').textContent = 'You: ' + data.user
-        document.getElementById('computer').textContent = 'Computer: ' + data.computer
-        document.getElementById('result').textContent = data.result
+
+        const data = await res.json();
+        document.getElementById('you').textContent = data.user;
+        document.getElementById('computer').textContent = data.computer;
+        document.getElementById('result').textContent = data.result;
+        document.getElementById('streakText').textContent = data.streakText;
+        document.getElementById('pointsChange').textContent = `${data.points >= 0 ? '+' : ''}${data.points}`;
+        document.getElementById('userGesture').textContent = gestureEmoji[data.user] || '🎮';
+        document.getElementById('computerGesture').textContent = gestureEmoji[data.computer] || '🎮';
+        document.getElementById('gestureDisplay').classList.add('active-gesture');
+
+        if (data.outcome === 'win') {
+          state.wins += 1;
+          state.streak += 1;
+          state.bestStreak = Math.max(state.bestStreak, state.streak);
+          state.matchUserWins += 1;
+        } else if (data.outcome === 'loss') {
+          state.losses += 1;
+          state.streak = 0;
+          state.matchComputerWins += 1;
+        } else {
+          state.ties += 1;
+          state.streak = 0;
+        }
+
+        state.points += data.points;
+        if (state.points < 0) state.points = 0;
+        state.level = computeLevel(state.points);
+
+        if (!matchComplete()) {
+          state.matchRound = Math.min(state.matchRound + 1, state.matchMode);
+        }
+
+        state.history.push({
+          user: data.user,
+          computer: data.computer,
+          result: data.result,
+          outcome: data.outcome,
+          points: data.points
+        });
+
+        saveState();
+        updateView();
+
+        if (matchComplete()) {
+          const winner = state.matchUserWins > state.matchComputerWins ? 'You win the match!' : 'Computer wins the match!';
+          document.getElementById('result').textContent = winner;
+          document.getElementById('streakText').textContent = 'Choose a match mode to start a new series.';
+        }
       }
+
+      function matchComplete() {
+        const needed = Math.ceil(state.matchMode / 2);
+        return state.matchUserWins >= needed || state.matchComputerWins >= needed;
+      }
+
+      const gestureEmoji = {
+        Rock: '✊',
+        Paper: '🖐️',
+        Scissors: '✌️'
+      };
+
+      function chooseMatch(mode) {
+        state.matchMode = mode;
+        state.matchRound = 1;
+        state.matchUserWins = 0;
+        state.matchComputerWins = 0;
+        document.getElementById('result').textContent = `Match set to Best of ${mode}. Ready!`;
+        document.getElementById('streakText').textContent = 'Play the first round now.';
+        saveState();
+        updateView();
+      }
+
+      loadState();
     </script>
   </body>
 </html>
