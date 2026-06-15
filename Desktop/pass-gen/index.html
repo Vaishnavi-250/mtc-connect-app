@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Password Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <h1>🔐 Password Generator</h1>
+                <button class="btn-theme" id="themeToggle" title="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+            <p class="subtitle">Create strong, secure passwords instantly</p>
+        </div>
+
+        <div class="card">
+            <!-- Password Output -->
+            <div class="password-section">
+                <label class="section-title">Your Password</label>
+                <div class="output">
+                    <input type="text" id="password" readonly placeholder="Click generate">
+                    <button class="btn-copy" onclick="copyPassword()" title="Copy to clipboard">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
+                </div>
+                <div class="strength-indicator">
+                    <div class="strength-bar-container">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <p class="strength-text" id="strength">No password yet</p>
+                </div>
+            </div>
+
+            <!-- Length Control -->
+            <div class="control-section">
+                <label class="section-title">Password Length</label>
+                <div class="length-control">
+                    <input type="range" id="length" min="4" max="32" value="12" class="slider">
+                    <span class="length-display" id="lengthValue">12</span>
+                </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="control-section">
+                <label class="section-title">Quick Presets</label>
+                <div class="presets-grid">
+                    <button class="preset-btn" onclick="applyPreset('strong')" title="16 chars, all types">💪 Strong</button>
+                    <button class="preset-btn" onclick="applyPreset('medium')" title="12 chars, mixed">⚡ Medium</button>
+                    <button class="preset-btn" onclick="applyPreset('pin')" title="4 digits only">🔢 PIN</button>
+                    <button class="preset-btn" onclick="applyPreset('memorable')" title="12 chars, no symbols">🎯 Memorable</button>
+                </div>
+            </div>
+
+            <!-- Character Options -->
+            <div class="control-section">
+                <label class="section-title">Include Characters</label>
+                <div class="options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="uppercase" checked>
+                        <span class="checkmark"></span>
+                        <span>Uppercase (A-Z)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="lowercase" checked>
+                        <span class="checkmark"></span>
+                        <span>Lowercase (a-z)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="numbers" checked>
+                        <span class="checkmark"></span>
+                        <span>Numbers (0-9)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="symbols" checked>
+                        <span class="checkmark"></span>
+                        <span>Symbols (!@#$)</span>
+                    </label>
+                </div>
+
+                <label class="checkbox-label" style="margin-top: 12px;">
+                    <input type="checkbox" id="excludeAmbiguous">
+                    <span class="checkmark"></span>
+                    <span>Exclude Ambiguous (0/O, l/1, etc.)</span>
+                </label>
+            </div>
+
+            <!-- Generate Button -->
+            <button class="btn-generate" onclick="generatePassword()">🎲 Generate Password</button>
+
+            <!-- History -->
+            <div class="history-section" id="historySection" style="display: none;">
+                <label class="section-title">Recent Passwords</label>
+                <div class="history-list" id="historyList"></div>
+                <button class="btn-clear" onclick="clearHistory()">Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
