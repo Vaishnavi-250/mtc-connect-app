@@ -455,7 +455,7 @@ html.dark-mode .preset-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
     color: white;
     padding: 14px 24px;
     border-radius: 8px;
