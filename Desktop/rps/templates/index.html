@@ -35,6 +35,14 @@
       .player-gesture { display:flex; flex-direction:column; align-items:center; width:45%; }
       .player-gesture span { display:block; font-size:48px; line-height:1; margin-bottom:8px; }
       .player-gesture p { margin:0; font-size:13px; color:#94a3b8; letter-spacing:.03em; }
+      .player-gesture.shake span { animation: shakeHand 0.6s ease-in-out infinite; }
+      @keyframes shakeHand {
+        0% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-6px) rotate(-8deg); }
+        50% { transform: translateY(0) rotate(8deg); }
+        75% { transform: translateY(-4px) rotate(-4deg); }
+        100% { transform: translateY(0) rotate(0deg); }
+      }
       .result-card { background:#111827; border:1px solid #334155; border-radius:18px; padding:20px; margin-top:4px; }
       .result-card p { margin:8px 0; }
       .result-card .result { font-size:18px; font-weight:700; color:#a6e3a1; }
@@ -213,6 +221,23 @@
           alert('Match already finished. Choose a match mode to start a new match.');
           return;
         }
+
+        const userEl = document.getElementById('userGesture');
+        const compEl = document.getElementById('computerGesture');
+        const userCard = userEl.parentElement;
+        const compCard = compEl.parentElement;
+
+        userEl.textContent = '✊';
+        compEl.textContent = '✊';
+        document.getElementById('result').textContent = 'Shaking hands...';
+        document.getElementById('streakText').textContent = 'Get ready for the reveal!';
+        userCard.classList.add('shake');
+        compCard.classList.add('shake');
+
+        await new Promise(resolve => setTimeout(resolve, 650));
+
+        userCard.classList.remove('shake');
+        compCard.classList.remove('shake');
 
         const res = await fetch('/play', {
           method: 'POST',
